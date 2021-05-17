@@ -1,0 +1,22 @@
+{
+  "carrinho": {
+    "produtos": [{
+      "id": 1,
+      "nome": "Pipoca para Microondas Manteiga YOKI 50g",
+      "preco": 169,
+      "quantidade": 6,
+      "categoria": "Bazar"
+    },
+    {
+      "id": 2,
+      "nome": "Cerveja BADEN BADEN American Ipa Puro Malte Garrafa 600ml",
+      "preco": 908,
+      "quantidade": 5,
+      "categoria": "Bebidas"
+    }],
+    "subtotal": 0,
+    "dataDeEntrega": null,
+    "valorDoFrete": 0,
+    "totalAPagar": 0
+  }
+}
