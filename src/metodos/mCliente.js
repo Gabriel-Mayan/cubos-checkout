@@ -11,6 +11,9 @@ function validarExistenciaCliente(infoPagamento)
 
 function validarDadosUsuario(cliente)
 {
+    if(!cliente)
+        return { mensagem: "Não existem dados do cliente " };
+
     if(cliente.country.length != 2) 
         return {mensagem:"Campo country do cliente inválido"};
     
@@ -34,7 +37,38 @@ function validarDadosUsuario(cliente)
     return false;
 }
 
+function validarEstoqueCheckout(carrinho, produtosEmEstoque)
+{
+    let validador = false;
+
+    for(let item of carrinho.produtos)
+    {
+        const produto = produtosEmEstoque.find(produto => produto.id === item.id);
+
+        if(item.quantidade > produto.estoque)
+        {
+            validador = {mensagem: "existem produtos em seu carrinho que estão fora de estoque"}
+        }
+    }
+    return validador;
+}
+
+function retirarProdutosEstoque(carrinho, estoque)
+{
+
+    for(let item of carrinho.produtos)
+    {
+        const indiceEstoque = estoque.findIndex(produto => produto.id === item.id);
+
+        estoque[indiceEstoque].estoque -= item.quantidade
+    }
+    return estoque;
+}
+
+
 module.exports = {
     validarExistenciaCliente,
-    validarDadosUsuario
+    validarDadosUsuario,
+    validarEstoqueCheckout,
+    retirarProdutosEstoque
 }

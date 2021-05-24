@@ -5,10 +5,13 @@ const { atualizarInfoCarrinho,
         addProdutoCarrinho,
         incrementarQuantidade,
         carrinhoVazio,
-        deletarUmItemCarrinho } = require('../metodos/mCarrinho');
+        deletarUmItemCarrinho,
+     } = require('../metodos/mCarrinho');
 
 const { validarExistenciaCliente,
-        validarDadosUsuario } = require('../metodos/mCliente');
+        validarDadosUsuario,
+        validarEstoqueCheckout,
+        retirarProdutosEstoque } = require('../metodos/mCliente');
 
 const caminhoCliente = '../src/dados/cliente.json';
 const caminhoProdutos = '../src/dados/estoque.json';
@@ -139,15 +142,13 @@ async function deletarCarrinho(req, res)
 
 async function finalizarCompra(req, res) 
 {
+    let estoque = await lerArquivo(caminhoProdutos);
     let carrinho = await lerArquivo(caminhoCarrinho);
-    const { produtos } = await lerArquivo(caminhoProdutos);
     const infoPagamento = await lerArquivo(caminhoCliente);
-
-    let cliente = validarExistenciaCliente(infoPagamento);
+    
     carrinho = atualizarInfoCarrinho(carrinho);
-        
-    if (!cliente) 
-        return res.status(400).json({ mensagem: "Não existem dados do cliente " });    
+    const cliente = validarExistenciaCliente(infoPagamento);
+    
 
     if (carrinho.produtos.length === 0) 
         return res.status(400).json({ mensagem: "O carrinho de compras está vazio" });    
@@ -156,6 +157,23 @@ async function finalizarCompra(req, res)
     {
         return res.status(400).json(validarDadosUsuario(cliente));
     }
+
+    const validarEstoque = validarEstoqueCheckout(carrinho, estoque.produtos);
+    
+    if(validarEstoque)
+    {
+        return res.status(400).json(validarEstoque);
+    }
+
+    estoque.produtos = retirarProdutosEstoque(carrinho, estoque.produtos);    
+    await escreverArquivo(caminhoProdutos, estoque);
+    
+    const compraFinalizada = carrinho;
+
+    carrinho = carrinhoVazio();
+    await escreverArquivo(caminhoCarrinho, carrinho);
+
+    return res.status(200).json({mensagem: "Compra efetuada com sucesso", carrinho : compraFinalizada})
 }
 
 module.exports =
